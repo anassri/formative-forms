@@ -66,6 +66,32 @@ app.post("/create", csurfProtection, validateUser, (req, res) => {
 
 });
 
+app.get("/create-interesting", csurfProtection, (req, res) => {
+  res.render("create-interesting", { title: "Create Interesting User", users, csrfToken: req.csrfToken() })
+});
+
+
+app.post("/create-interesting", csurfProtection, validateUser, (req, res) => {
+  const { firstName, lastName, email, password, confirmedPassword } = req.body;
+  if(req.errors.length > 0){
+    res.render("create-interesting", {
+      errors: req.errors,
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmedPassword,
+      csrfToken: req.csrfToken()
+    });
+    return;
+  }
+  const user = { id:users.length+1, firstName, lastName, email, password, confirmedPassword };
+
+  users.push(user);
+  res.redirect("/")
+
+});
+
 app.listen(port, () => console.log(`Listening on port ${port}!`));
 
 module.exports = app;
