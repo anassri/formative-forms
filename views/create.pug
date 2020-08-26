@@ -2,6 +2,13 @@ extends layout.pug
 
 block content
     h2= title
+    if errors
+        div
+            ul
+                p The following errors were found:
+                each error in errors
+                    li #{error}
+    
     form(method="post", action="/create")
         input(type="hidden", name="_csrf", value=csrfToken)
         label(for="firstName") First Name:
