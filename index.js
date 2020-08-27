@@ -20,9 +20,10 @@ const users = [
 ];
 
 const validateUser = (req, res, next)=>{
-  const { firstName, lastName, email, password, confirmedPassword } = req.body;
-  const errors = [];
   
+  let { firstName, lastName, email, password, confirmedPassword } = req.body;
+  const errors = [];
+  console.log(req.url);
   if (!firstName) errors.push('Please provide a first name.');
   if (!lastName) errors.push('Please provide a last name.');
   if (!email) errors.push('Please provide an email.');
@@ -31,11 +32,20 @@ const validateUser = (req, res, next)=>{
   if (!confirmedPassword) errors.push('Please provide a password.');
   if (password != confirmedPassword) errors.push('The provided values for the password and password confirmation fields did not match.');
   
+  if(req.url==='/create-interesting'){
+    let { age, favoriteBeatle, iceCream } = req.body;
+    age = parseInt(age, 10);
+    if (!age) errors.push('age is required');
+    else if (age < 0 || age > 120) errors.push('age must be a valid age');
+    if (!favoriteBeatle) errors.push('favoriteBeatle is required');
+    if (favoriteBeatle === "Scooby-Doo") errors.push('favoriteBeatle must be a real Beatle member');
+    // if (typeof age !== "number") errors.push('age must be a valid age');
+    if (!iceCream) errors.push('Please provide an email.');
+  }
   req.errors = errors;
   
   next();
 }
-//"updated file"
 app.get("/", (req, res) => {
   res.render('index', { title: 'Existing Users',users });
 });
@@ -72,8 +82,10 @@ app.get("/create-interesting", csurfProtection, (req, res) => {
 
 
 app.post("/create-interesting", csurfProtection, validateUser, (req, res) => {
-  const { firstName, lastName, email, password, confirmedPassword } = req.body;
+  let { firstName, lastName, email, password, confirmedPassword, age, favoriteBeatle, iceCream } = req.body;
+  // console.log(req.body);
   if(req.errors.length > 0){
+    if (iceCream === 'on') iceCream = true; 
     res.render("create-interesting", {
       errors: req.errors,
       firstName,
@@ -81,14 +93,17 @@ app.post("/create-interesting", csurfProtection, validateUser, (req, res) => {
       email,
       password,
       confirmedPassword,
+      age,
+      favoriteBeatle,
+      iceCream,
       csrfToken: req.csrfToken()
     });
     return;
   }
-  const user = { id:users.length+1, firstName, lastName, email, password, confirmedPassword };
+  const user = { id: users.length + 1, firstName, lastName, email, password, confirmedPassword, age, favoriteBeatle, iceCream  };
 
   users.push(user);
-  res.redirect("/")
+  res.redirect("/");
 
 });
 
